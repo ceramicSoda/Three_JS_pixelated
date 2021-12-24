@@ -6,6 +6,9 @@ import {Scene,
         BoxBufferGeometry,
         Color} from 'three'
 
+//function radToDeg(angle){return((angle*180)/3.14159265359)}
+function radToDeg(angle){return((angle*180)/Math.PI)}
+
 class World{
   
   constructor(){
@@ -42,10 +45,14 @@ class World{
                                           this._viewport.zoom, 
                                           - this._viewport.zoom, 
                                           1, 1000);
-    this.camera.position.x = Math.sqrt(2)*100; 
+    this.camera.position.x = 100; 
     this.camera.position.y = 100; 
-    this.camera.position.z = Math.sqrt(2)*100;
+    this.camera.position.z = 100;
     this.camera.lookAt(this.mesh.position);
+    console.log(radToDeg(this.camera.rotation.x))
+    console.log(radToDeg(this.camera.rotation.y))
+    console.log(radToDeg(this.camera.rotation.z))
+    //this.camera.rotateY(-60);
     this.scene.add(this.camera);
     this.scene.add(this.mesh)
 
