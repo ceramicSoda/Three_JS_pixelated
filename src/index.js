@@ -6,8 +6,9 @@ import {Scene,
         BoxBufferGeometry,
         Color} from 'three'
 
-//function radToDeg(angle){return((angle*180)/3.14159265359)}
 function radToDeg(angle){return((angle*180)/Math.PI)}
+function degToRad(angle){return((angle/180)*Math.PI)}
+
 
 class World{
   
@@ -16,20 +17,10 @@ class World{
     this._viewport = {height: this.canvas.clientWidth / 2, 
                       width: this.canvas.clientHeight / 2,
                       aspect: this.canvas.clientWidth/this.canvas.clientHeight,
-                      zoom: 3
+                      zoom: 2
                     };
     this.init();
     this.render();
-  }
-
-  initEventListeners() {
-    window.addEventListener('resize', () => {
-      this._viewport.width = window.innerWidth
-      this._viewport.height = window.innerHeight
-      this.camera.updateProjectionMatrix()
-      this.renderer.setSize(this._viewport.width, this._viewport.height)
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    })
   }
   
   init(){
@@ -45,10 +36,11 @@ class World{
                                           this._viewport.zoom, 
                                           - this._viewport.zoom, 
                                           1, 1000);
-    this.camera.position.x = 100; 
-    this.camera.position.y = 100; 
-    this.camera.position.z = 100;
+    this.camera.position.x = -6.143725; 
+    this.camera.position.y = 5; 
+    this.camera.position.z = -6.143725;
     this.camera.lookAt(this.mesh.position);
+    //this.camera.rotateX(degToRad(-90+35.264))
     console.log(radToDeg(this.camera.rotation.x))
     console.log(radToDeg(this.camera.rotation.y))
     console.log(radToDeg(this.camera.rotation.z))
