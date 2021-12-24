@@ -11,7 +11,6 @@ function degToRad(angle){return((angle/180)*Math.PI)}
 
 
 class World{
-  
   constructor(){
     this.canvas = document.getElementById("glCanvas");
     this._viewport = {height: this.canvas.clientWidth / 2, 
@@ -24,6 +23,7 @@ class World{
   }
   
   init(){
+    const isoAngle = 1.22474487139; 
     this.angleX = 0;
     this.scene = new Scene();
     this.scene.background = new Color( 0x101520 );
@@ -36,15 +36,13 @@ class World{
                                           this._viewport.zoom, 
                                           - this._viewport.zoom, 
                                           1, 1000);
-    this.camera.position.x = -6.143725; 
-    this.camera.position.y = 5; 
-    this.camera.position.z = -6.143725;
+    //this.camera.position.x = -6.143725; 
+    this.camera.position.x = isoAngle*5
+    //this.camera.position.y = 5; 
+    this.camera.position.y = 5
+    //this.camera.position.z = -6.143725;
+    this.camera.position.z = isoAngle*5
     this.camera.lookAt(this.mesh.position);
-    //this.camera.rotateX(degToRad(-90+35.264))
-    console.log(radToDeg(this.camera.rotation.x))
-    console.log(radToDeg(this.camera.rotation.y))
-    console.log(radToDeg(this.camera.rotation.z))
-    //this.camera.rotateY(-60);
     this.scene.add(this.camera);
     this.scene.add(this.mesh)
 
@@ -53,13 +51,13 @@ class World{
       canvas: this.canvas
     });
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight)
-    this.renderer.setPixelRatio(window.devicePixelRatio/8);
+    this.renderer.setPixelRatio(window.devicePixelRatio/4);
   }
 
   render(){
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(this.render.bind(this));
-    //this.mesh.rotateX(+0.01);
+    //this.mesh.rotateY(+0.01);
   }
 }
 
