@@ -2,13 +2,16 @@ import {Scene,
         WebGLRenderer,
         Mesh, 
         OrthographicCamera, 
-        MeshPhysicalMaterial,
+        MeshStandardMaterial,
         BoxGeometry,
+        IcosahedronGeometry,
+        PlaneGeometry,
         Color,
-        SpotLight,
+        PointLight,
         AmbientLight,
         TextureLoader,
-        NearestFilter} from 'three'
+        NearestFilter,
+      } from 'three'
 
 function radToDeg(angle){return((angle*180)/Math.PI)}
 function degToRad(angle){return((angle/180)*Math.PI)}
@@ -20,7 +23,7 @@ class World{
     this._viewport = {height: this.canvas.clientWidth / 2, 
                       width: this.canvas.clientHeight / 2,
                       aspect: this.canvas.clientWidth/this.canvas.clientHeight,
-                      zoom: 1
+                      zoom: 4
                     };
     this.time = 0; 
     this.init();
@@ -35,7 +38,8 @@ class World{
       canvas: this.canvas
     });
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight)
-    this.renderer.setPixelRatio(window.devicePixelRatio/8);
+    this.renderer.setPixelRatio(window.devicePixelRatio/4);
+    this.renderer.shadowMap.enabled = true;
   }
 
   initScene(){
@@ -45,18 +49,36 @@ class World{
     this.texture.magFilter = NearestFilter; 
     this.scene = new Scene();
     this.scene.background = new Color( 0x151515 );
-    //this.geometry = new IcosahedronGeometry(1,1);
-    this.geometry = new BoxGeometry();
-    this.material = new MeshPhysicalMaterial({
+    this.geometry1 = new BoxGeometry();
+    this.geometry2 = new PlaneGeometry(4,4);
+    this.geometry3 = new IcosahedronGeometry(0.7);
+    this.material1 = new MeshStandardMaterial({
       map: this.texture,
       color: 0x888888,
       flatShading: true,
-      roughness: 0.3,
-      reflectivity: 1,
     });
-    this.mesh = new Mesh(this.geometry, this.material)
-    this.spotlight1 = new SpotLight(0xff8f47, 3);
-    this.spotlight2 = new SpotLight(0x7ec4f1, 3);
+    this.mesh1 = new Mesh(this.geometry1, this.material1);
+    this.mesh1.castShadow = true;
+    this.mesh1.receiveShadow = true;
+    this.mesh1.position.z = -0.5;
+    this.mesh1.position.x = -0.5;
+    this.mesh2 = new Mesh(this.geometry2, this.material1);
+    this.mesh2.castShadow = true;
+    this.mesh2.receiveShadow = true;
+    this.mesh2.rotateX(degToRad(270));
+    this.mesh2.position.y = -0.5;
+    this.mesh3 = new Mesh(this.geometry3, this.material1);
+    this.mesh3.castShadow = true;
+    this.mesh3.receiveShadow = true;
+    this.mesh3.position.z = -1;
+    this.mesh3.position.x = 1;
+    this.mesh3.position.y = -0.1;
+    this.light1 = new PointLight(0xff8f47, 3);
+    this.light2 = new PointLight(0x7ec4f1, 3);
+    this.light1.castShadow = true;
+    this.light1.position.y = 4;
+    this.light2.castShadow = true;
+    this.light2.position.y = 4;
     this.ambientlight1 = new AmbientLight(0x455045);
     this.camera = new OrthographicCamera( this._viewport.aspect * -this._viewport.zoom, 
                                           this._viewport.aspect * this._viewport.zoom, 
@@ -66,8 +88,8 @@ class World{
     this.camera.position.x = isoAngle*5
     this.camera.position.y = 5
     this.camera.position.z = isoAngle*5
-    this.camera.lookAt(this.mesh.position);
-    this.scene.add(this.camera, this.mesh, this.spotlight1, this.spotlight2, this.spotlight3, this.ambientlight1);
+    this.camera.lookAt(0,0,0);
+    this.scene.add(this.camera, this.mesh1, this.mesh2, this.mesh3, this.light1, this.light2, this.ambientlight1);
   }
 
   initEventHandlers(){
@@ -82,10 +104,10 @@ class World{
     this.time+=0.03; 
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(this.render.bind(this));
-    this.spotlight1.position.x=(Math.sin(this.time)*3);
-    this.spotlight1.position.z=(Math.cos(this.time)*3);
-    this.spotlight2.position.x=(Math.sin(this.time+3.14)*3);
-    this.spotlight2.position.z=(Math.cos(this.time+3.14)*3);
+    this.light1.position.x=(Math.sin(this.time)*4);
+    this.light1.position.z=(Math.cos(this.time)*4);
+    this.light2.position.x=(Math.sin(this.time+3.14)*4);
+    this.light2.position.z=(Math.cos(this.time+3.14)*4);
   }
 }
 
