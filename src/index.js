@@ -14,10 +14,40 @@ import {Scene,
       } from 'three'
 import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 
 function radToDeg(angle){return((angle*180)/Math.PI)}
 function degToRad(angle){return((angle/180)*Math.PI)}
 
+const vert = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+  }`
+
+const frag = `
+  uniform float uTime;
+  uniform sampler2D tDiffuse;
+  varying vec2 vUv;
+
+  float random( vec2 p )
+  {
+    vec2 K1 = vec2(
+      23.14069263277926, // e^pi (Gelfond's constant)
+      2.665144142690225 // 2^sqrt(2) (Gelfondâ€“Schneider constant)
+    );
+    return fract( cos( dot(p,K1) ) * 12345.6789 );
+  }
+
+  void main() {
+
+    vec4 color = texture2D( tDiffuse, vUv );
+    vec2 uvRandom = vUv;
+    uvRandom.y *= random(vec2(uvRandom.y,uTime));
+    color.rgb += random(uvRandom)*0.15;
+    gl_FragColor = vec4( color  );
+  }`
 
 class World{
   constructor(){
@@ -46,6 +76,19 @@ class World{
     this.composer = new EffectComposer(this.renderer);
     this.renderPass = new RenderPass(this.scene, this.camera);
     this.composer.addPass(this.renderPass);
+    this.pixelEffect = {
+      uniforms: {
+        "tDiffuse": { value: null },
+        "tNormal": { value: null },
+        "tDepth": { value: null },
+        "uTime": { value: this.time },
+      },
+      vertexShader: vert,
+      fragmentShader: frag
+    }
+    this.pixelPass = new ShaderPass(this.pixelEffect);
+    this.pixelPass.renderToScreen = true;
+    this.composer.addPass(this.pixelPass);
   }
 
   initScene(){
@@ -112,7 +155,6 @@ class World{
     window.addEventListener('resize', () => {
       this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight)
       this.camera.updateProjectionMatrix();
-      
     })
   }
 
@@ -122,6 +164,8 @@ class World{
     window.requestAnimationFrame(this.render.bind(this));
     this.light1.position.x=(Math.sin(this.time)*4);
     this.light1.position.z=(Math.cos(this.time)*4);
+    this.composer.render();
+    this.pixelPass.uniforms["uTime"].value = this.time;
     //this.light2.position.x=(Math.sin(this.time+3.14)*4);
     //this.light2.position.z=(Math.cos(this.time+3.14)*4);
   }
